@@ -21,24 +21,22 @@ import './index.css';
         />
       );
     }
+    createBoard(row, col){
+        let cellCounter = 0;
+        const board = [];
+        for (let i=0;i<row;i++){
+            const columns = [];
+            for(let j=0;j<col;j++){
+                columns.push(this.renderSquare(cellCounter++))
+            }
+            board.push(<div key={i} className="board-row">{columns}</div>)
+        }
+        return board;
+    }
     render() {
       return (
         <div>
-          <div className="board-row">
-            {this.renderSquare(0)}
-            {this.renderSquare(1)}
-            {this.renderSquare(2)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(3)}
-            {this.renderSquare(4)}
-            {this.renderSquare(5)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(6)}
-            {this.renderSquare(7)}
-            {this.renderSquare(8)}
-          </div>
+            {this.createBoard(3,3)}
         </div>
       );
     }
@@ -51,11 +49,12 @@ import './index.css';
               history: [{
                   squares: Array(9).fill(null)
               }],
-              xIsNext: true
+              xIsNext: true,
+              stepNumber: 0,
           }
       }
       handleClick(i){
-        const history = this.state.history;
+        const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
         if(calculateWinner(squares) || squares[i]) return;
@@ -64,13 +63,49 @@ import './index.css';
                 history: history.concat([{
                     squares:squares
                 }]),
-                xIsNext: !this.state.xIsNext
+                xIsNext: !this.state.xIsNext,
+                stepNumber: history.length,
             });
     }
+    jumpTo(step){
+        this.setState({
+            stepNumber: step,
+            xIsNext: (step % 2) === 0,
+        })
+    }
+    getLocation = (move) => {
+        const locationMap = {
+          0: 'row: 1, col: 1',
+          1: 'row: 1, col: 2',
+          2: 'row: 1, col: 3',
+          3: 'row: 2, col: 1',
+          4: 'row: 2, col: 2',
+          5: 'row: 2, col: 3',
+          6: 'row: 3, col: 1',
+          7: 'row: 3, col: 2',
+          8: 'row: 3, col: 3',
+        };
+      
+        return locationMap[move];
+      };
     render() {
       const history = this.state.history;
-      const current = history[history.length - 1];
+      const current = history[this.state.stepNumber];
       const winner = calculateWinner(current.squares);
+      const moves = history.map((step, move)=>{
+      const desc = move ? `Go to move #${move}`: 'Go to game start';
+      return (
+          <li key={move}>
+            <div>
+            <button onClick={()=>this.jumpTo(move)}>
+                {this.state.stepNumber === move ? <b>{desc}</b>: desc}
+            </button>
+            {move ? <label style={{marginLeft : '20px'}}>{this.getLocation(move)}</label> : null }
+            </div>
+          </li>
+      );
+    });
+
       let status;
       if(winner){
         status = `Winner: ${winner}`;
@@ -87,7 +122,7 @@ import './index.css';
           </div>
           <div className="game-info">
             <div>{status}</div>
-            <ol>{/* TODO */}</ol>
+            <ol>{moves}</ol>
           </div>
         </div>
       );
@@ -120,3 +155,5 @@ import './index.css';
     }
     return null;
   }
+
+  
