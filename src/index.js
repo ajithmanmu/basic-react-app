@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import ClockApp from './ClockApp';
 
     const Square = (props) => {
         return (
@@ -73,6 +74,15 @@ import './index.css';
             xIsNext: (step % 2) === 0,
         })
     }
+    toggleOrder(){
+        const history = this.state.history;
+        console.log('history', history);
+        const reversedHistory = history.reverse();
+        console.log('reversedHistory', reversedHistory);
+        this.setState({
+            history: reversedHistory
+        })
+    }
     getLocation = (move) => {
         const locationMap = {
           0: 'row: 1, col: 1',
@@ -93,17 +103,17 @@ import './index.css';
       const current = history[this.state.stepNumber];
       const winner = calculateWinner(current.squares);
       const moves = history.map((step, move)=>{
-      const desc = move ? `Go to move #${move}`: 'Go to game start';
-      return (
-          <li key={move}>
-            <div>
-            <button onClick={()=>this.jumpTo(move)}>
-                {this.state.stepNumber === move ? <b>{desc}</b>: desc}
-            </button>
-            {move ? <label style={{marginLeft : '20px'}}>{this.getLocation(move)}</label> : null }
-            </div>
-          </li>
-      );
+        const desc = move ? `Go to move #${move}`: 'Go to game start';
+        return (
+            <li key={move}>
+                <div>
+                <button onClick={()=>this.jumpTo(move)}>
+                    {this.state.stepNumber === move ? <b>{desc}</b>: desc}
+                </button>
+                {move ? <label style={{marginLeft : '20px'}}>{this.getLocation(move)}</label> : null }
+                </div>
+            </li>
+        );
     });
 
       let status;
@@ -122,6 +132,7 @@ import './index.css';
           </div>
           <div className="game-info">
             <div>{status}</div>
+            <button onClick={()=>this.toggleOrder()}> Toggle</button>
             <ol>{moves}</ol>
           </div>
         </div>
@@ -132,7 +143,7 @@ import './index.css';
   // ========================================
   
   ReactDOM.render(
-    <Game />,
+    <div><Game /><ClockApp increment="1"/></div>,
     document.getElementById('root')
   );
   
